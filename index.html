@@ -285,14 +285,50 @@
   .app-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
   @media (max-width:860px){.app-grid{grid-template-columns:repeat(2,1fr);}}
   @media (max-width:560px){.app-grid{grid-template-columns:1fr;}}
+
   .app-card{
-    background:var(--plate-2); border:1px solid var(--line-soft); border-radius:var(--radius);
-    padding:20px; transition:transform .2s, border-color .2s;
+    background:transparent; border:none; padding:0;
+    perspective:1200px; cursor:pointer; height:220px;
   }
-  .app-card:hover{transform:translateY(-3px); border-color:var(--gold);}
-  .app-card svg{width:38px; height:38px; margin-bottom:12px; stroke:var(--gold); fill:none; stroke-width:1.5;}
+  .app-card .card-inner{
+    position:relative; width:100%; height:100%;
+    transition:transform .6s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+  }
+  .app-card.flipped .card-inner{transform:rotateY(180deg);}
+  @media (prefers-reduced-motion: reduce){
+    .app-card .card-inner{transition:none;}
+  }
+  .card-face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    background:var(--plate-2); border:1px solid var(--line-soft); border-radius:var(--radius);
+    padding:20px; transition:border-color .2s;
+    display:flex; flex-direction:column;
+  }
+  .app-card:hover .card-face.front{border-color:var(--gold);}
+  .card-face.back{
+    transform:rotateY(180deg);
+    background:var(--plate-2);
+    border-color:var(--gold);
+    justify-content:center;
+  }
+  .app-card svg{width:38px; height:38px; margin-bottom:12px; stroke:var(--gold); fill:none; stroke-width:1.5; flex-shrink:0;}
   .app-card h3{font-family:var(--display); font-size:1rem; margin:0 0 8px 0;}
   .app-card p{color:var(--muted); font-size:0.87rem; margin:0;}
+  .card-face .flip-hint{
+    margin-top:auto; font-family:var(--mono); font-size:0.68rem; color:var(--muted);
+    display:flex; align-items:center; gap:6px; letter-spacing:.04em; text-transform:uppercase;
+  }
+  .card-face .flip-hint::after{content:"⟲"; font-size:0.9rem;}
+  .card-face.back .tag{
+    font-family:var(--mono); font-size:0.68rem; color:var(--gold); text-transform:uppercase;
+    letter-spacing:.06em; margin-bottom:8px;
+  }
+  .card-face.back .formula{
+    font-family:var(--mono); font-size:0.95rem; color:var(--paper); margin:8px 0;
+    padding:8px 10px; background:var(--ink); border-radius:var(--radius); border:1px solid var(--line-soft);
+  }
+  .card-face.back p{color:var(--muted); font-size:0.82rem;}
 
   /* ---------- QUIZ ---------- */
   .quiz-q{margin-bottom:26px; padding-bottom:26px; border-bottom:1px solid var(--line-soft);}
@@ -330,7 +366,7 @@
     <div class="brand"><span class="dot"></span>TRIGONOMETRY LAB</div>
     <div class="navlinks" id="navlinks">
       <a href="#intro">บทนำ</a>
-      <a href="#sohcahtoa">SOHCAHTOA</a>
+      <a href="#sohcahtoa">SinCosTan</a>
       <a href="#circle">วงกลมหนึ่งหน่วย</a>
       <a href="#graphs">กราฟฟังก์ชัน</a>
       <a href="#identities">เอกลักษณ์</a>
@@ -427,7 +463,7 @@
 <section id="sohcahtoa">
   <div class="wrap plate reveal">
     <span class="tick-br"></span><span class="tick-bl"></span>
-    <div class="eyebrow">SOH · CAH · TOA</div>
+    <div class="eyebrow">SIN · COS · TAN</div>
     <h2 class="section-title">อัตราส่วนตรีโกณมิติพื้นฐาน</h2>
     <p class="lede">ในสามเหลี่ยมมุมฉาก เมื่อเลือกมุม θ หนึ่งมุม (ที่ไม่ใช่มุมฉาก) ด้านทั้งสามจะถูกเรียกตามตำแหน่งของมันเทียบกับมุมนั้น</p>
 
@@ -436,8 +472,8 @@
         <path class="edge" d="M30 190 L270 190 L270 40 Z"/>
         <path class="right-angle" d="M250 190 L250 170 L270 170"/>
         <text class="lbl-theta" x="50" y="178">θ</text>
-        <text class="lbl-adj" x="140" y="210">ด้านชิดมุม θ </text>
-        <text class="lbl-opp" x="278" y="115" transform="rotate(90 278 115)">ด้านตรงข้ามมุม θ </text>
+        <text class="lbl-adj" x="140" y="210">ด้านชิดมุม θ</text>
+        <text class="lbl-opp" x="278" y="115" transform="rotate(90 278 115)">ด้านตรงข้ามมุม θ</text>
         <text class="lbl-hyp" x="120" y="105">ด้านตรงข้ามมุมฉาก </text>
       </svg>
 
@@ -612,39 +648,8 @@
   <div class="wrap reveal">
     <div class="eyebrow">Δy / Δx</div>
     <h2 class="section-title">การประยุกต์ใช้งานจริง</h2>
-    <p class="lede">ตรีโกณมิติไม่ได้อยู่แค่ในตำราเรียน แต่แทรกอยู่ในเทคโนโลยีรอบตัวเรา</p>
-    <div class="app-grid">
-      <div class="app-card">
-        <svg viewBox="0 0 24 24"><path d="M12 2 L20 20 L12 16 L4 20 Z"/></svg>
-        <h3>การนำทาง</h3>
-        <p>GPS และการเดินเรือใช้ตรีโกณมิติคำนวณตำแหน่งจากมุมและระยะทางระหว่างดาวเทียม</p>
-      </div>
-      <div class="app-card">
-        <svg viewBox="0 0 24 24"><path d="M2 12 Q6 2 10 12 T18 12 T22 12"/></svg>
-        <h3>คลื่นเสียงและแสง</h3>
-        <p>คลื่นทุกชนิดถูกอธิบายด้วยฟังก์ชันไซน์และโคไซน์ ตั้งแต่เสียงดนตรีจนถึงสัญญาณวิทยุ</p>
-      </div>
-      <div class="app-card">
-        <svg viewBox="0 0 24 24"><path d="M3 21 L3 10 L12 3 L21 10 L21 21 Z M9 21 L9 14 L15 14 L15 21"/></svg>
-        <h3>สถาปัตยกรรม</h3>
-        <p>วิศวกรคำนวณความลาดเอียงของหลังคาและความแข็งแรงของโครงสร้างด้วยมุมและอัตราส่วนตรีโกณมิติ</p>
-      </div>
-      <div class="app-card">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3 L12 12 L18 15"/></svg>
-        <h3>ดาราศาสตร์</h3>
-        <p>นักดาราศาสตร์ใช้พาราแลกซ์และมุมเงยในการวัดระยะทางถึงดาวฤกษ์</p>
-      </div>
-      <div class="app-card">
-        <svg viewBox="0 0 24 24"><path d="M4 4 L4 20 L20 20 M8 16 L11 10 L14 14 L20 6"/></svg>
-        <h3>คอมพิวเตอร์กราฟิก</h3>
-        <p>การหมุนวัตถุ 3 มิติในเกมและแอนิเมชันทุกครั้งอาศัยเมทริกซ์ที่สร้างจาก sin และ cos</p>
-      </div>
-      <div class="app-card">
-        <svg viewBox="0 0 24 24"><path d="M12 2 L12 22 M2 12 L22 12" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="7"/></svg>
-        <h3>ฟิสิกส์การเคลื่อนที่</h3>
-        <p>การเคลื่อนที่แบบโพรเจกไทล์และการสั่นแบบฮาร์มอนิกล้วนอธิบายด้วยฟังก์ชันตรีโกณมิติ</p>
-      </div>
-    </div>
+    <p class="lede">ตรีโกณมิติไม่ได้อยู่แค่ในตำราเรียน แต่แทรกอยู่ในเทคโนโลยีรอบตัวเรา — กดที่การ์ดเพื่อพลิกดูรายละเอียดเพิ่มเติม</p>
+    <div class="app-grid" id="appGrid"></div>
   </div>
 </section>
 
@@ -654,9 +659,13 @@
     <span class="tick-br"></span><span class="tick-bl"></span>
     <div class="eyebrow">✓ / ✗</div>
     <h2 class="section-title">แบบทดสอบความเข้าใจ</h2>
-    <p class="lede">ลองทดสอบความเข้าใจของคุณด้วยคำถาม 5 ข้อต่อไปนี้</p>
+    <p class="lede">แต่ละรอบระบบจะสุ่มคำถาม 5 ข้อจากคลังคำถามทั้งหมดมาให้ทำ เมื่อตรวจคำตอบแล้วสามารถกด "สุ่มข้อใหม่" เพื่อทำต่ออีกชุดได้เรื่อย ๆ</p>
+    <div class="eyebrow" id="quizProgress" style="margin-bottom:16px;">ชุดคำถามที่ 1 · 5 ข้อ</div>
     <form id="quizForm"></form>
-    <button class="btn primary" id="submitQuiz" type="button">ตรวจคำตอบ</button>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+      <button class="btn primary" id="submitQuiz" type="button">ตรวจคำตอบ</button>
+      <button class="btn" id="newQuizBtn" type="button" style="display:none;">สุ่มข้อใหม่ →</button>
+    </div>
     <div id="quizScore"></div>
   </div>
 </section>
@@ -938,37 +947,181 @@ document.getElementById('solveBtn').addEventListener('click', ()=>{
 });
 document.getElementById('solveBtn').click();
 
+/* ============ APPLICATION FLIP CARDS ============ */
+const appData = [
+  {
+    icon:'<path d="M12 2 L20 20 L12 16 L4 20 Z"/>',
+    title:'การนำทาง',
+    front:'GPS และการเดินเรือใช้ตรีโกณมิติคำนวณตำแหน่งจากมุมและระยะทางระหว่างดาวเทียม',
+    tag:'Triangulation',
+    formula:'ตำแหน่ง = f(θ₁, θ₂, θ₃)',
+    back:'ระบบ GPS รับสัญญาณจากดาวเทียมอย่างน้อย 4 ดวง แล้วใช้หลักการหาตำแหน่งสามเหลี่ยม (triangulation) คำนวณมุมและระยะทางเพื่อระบุพิกัดของเราบนโลกได้แม่นยำระดับเมตร'
+  },
+  {
+    icon:'<path d="M2 12 Q6 2 10 12 T18 12 T22 12"/>',
+    title:'คลื่นเสียงและแสง',
+    front:'คลื่นทุกชนิดถูกอธิบายด้วยฟังก์ชันไซน์และโคไซน์ ตั้งแต่เสียงดนตรีจนถึงสัญญาณวิทยุ',
+    tag:'Wave equation',
+    formula:'y = A·sin(ωt + φ)',
+    back:'เสียง คลื่นวิทยุ และแสง ล้วนเป็นคลื่นที่เขียนแทนด้วยฟังก์ชันไซน์ โดย A คือแอมพลิจูด ω คือความถี่เชิงมุม และ φ คือเฟส วิศวกรเสียงใช้หลักการนี้ผสมเสียงหลายความถี่เข้าด้วยกัน'
+  },
+  {
+    icon:'<path d="M3 21 L3 10 L12 3 L21 10 L21 21 Z M9 21 L9 14 L15 14 L15 21"/>',
+    title:'สถาปัตยกรรม',
+    front:'วิศวกรคำนวณความลาดเอียงของหลังคาและความแข็งแรงของโครงสร้างด้วยมุมและอัตราส่วนตรีโกณมิติ',
+    tag:'Roof pitch',
+    formula:'มุมลาด = tan⁻¹(สูง/ยาว)',
+    back:'การออกแบบโครงหลังคา สะพาน หรือเสาค้ำยัน ต้องอาศัยมุมและแรงในแนวแกน โดยใช้ sin, cos กระจายแรงตามแนวราบและแนวดิ่งเพื่อให้โครงสร้างรับน้ำหนักได้อย่างปลอดภัย'
+  },
+  {
+    icon:'<circle cx="12" cy="12" r="9"/><path d="M12 3 L12 12 L18 15"/>',
+    title:'ดาราศาสตร์',
+    front:'นักดาราศาสตร์ใช้พาราแลกซ์และมุมเงยในการวัดระยะทางถึงดาวฤกษ์',
+    tag:'Stellar parallax',
+    formula:'ระยะทาง = 1 / tan(พาราแลกซ์)',
+    back:'เมื่อโลกโคจรรอบดวงอาทิตย์ ดาวฤกษ์ใกล้จะปรากฏขยับตำแหน่งเล็กน้อยเทียบกับดาวไกล (parallax) นักดาราศาสตร์วัดมุมนี้แล้วใช้ตรีโกณมิติคำนวณระยะทางเป็นปีแสง'
+  },
+  {
+    icon:'<path d="M4 4 L4 20 L20 20 M8 16 L11 10 L14 14 L20 6"/>',
+    title:'คอมพิวเตอร์กราฟิก',
+    front:'การหมุนวัตถุ 3 มิติในเกมและแอนิเมชันทุกครั้งอาศัยเมทริกซ์ที่สร้างจาก sin และ cos',
+    tag:'Rotation matrix',
+    formula:"x' = x·cosθ − y·sinθ",
+    back:'ทุกครั้งที่หมุนกล้องหรือโมเดล 3 มิติในเกม เอนจินกราฟิกจะคูณพิกัดจุดด้วยเมทริกซ์การหมุนที่ประกอบด้วย sin และ cos ของมุมที่หมุน ทำให้ได้ตำแหน่งใหม่ที่ถูกต้อง'
+  },
+  {
+    icon:'<path d="M12 2 L12 22 M2 12 L22 12" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="7"/>',
+    title:'ฟิสิกส์การเคลื่อนที่',
+    front:'การเคลื่อนที่แบบโพรเจกไทล์และการสั่นแบบฮาร์มอนิกล้วนอธิบายด้วยฟังก์ชันตรีโกณมิติ',
+    tag:'Projectile motion',
+    formula:'R = v²·sin(2θ)/g',
+    back:'ระยะไกลสุดของวัตถุที่ถูกขว้างขึ้นเป็นมุม θ คำนวณจากสูตรนี้ ซึ่งบอกว่ามุม 45° จะให้ระยะไกลที่สุด — หลักการเดียวกับที่ใช้ออกแบบวิถีจรวดและลูกกอล์ฟ'
+  },
+  {
+    icon:'<path d="M4 20 L4 4 M4 4 L20 4 M8 20 Q8 10 12 10 Q16 10 16 20"/>',
+    title:'ดนตรีและฮาร์โมนิก',
+    front:'เสียงดนตรีที่ไพเราะเกิดจากการซ้อนทับของคลื่นไซน์หลายความถี่ตามอนุกรมฟูริเยร์',
+    tag:'Fourier series',
+    formula:'f(t) = Σ Aₙ·sin(nωt)',
+    back:'เสียงเครื่องดนตรีแต่ละชนิดมีเอกลักษณ์เพราะประกอบด้วยคลื่นไซน์ความถี่มูลฐานและฮาร์โมนิกซ้อนกัน อนุกรมฟูริเยร์ใช้ผลรวมของ sin และ cos สร้างคลื่นเสียงใด ๆ ขึ้นมาใหม่ได้'
+  },
+  {
+    icon:'<path d="M3 12 L21 12 M12 3 L12 21" /><circle cx="12" cy="12" r="9"/>',
+    title:'การสำรวจที่ดิน',
+    front:'นักสำรวจใช้กล้องวัดมุมและตรีโกณมิติคำนวณความสูงหรือระยะทางที่เข้าถึงไม่ได้โดยตรง',
+    tag:'Height by angle',
+    formula:'h = d·tan(มุมเงย)',
+    back:'เมื่อวัดระยะทางราบ d จากจุดสังเกตถึงฐานของวัตถุ และมุมเงยที่มองไปยังยอดวัตถุ จะสามารถคำนวณความสูง h ได้โดยไม่ต้องปีนขึ้นไปวัดจริง เช่น การวัดความสูงตึกหรือภูเขา'
+  },
+];
+
+function renderAppCards(){
+  const grid = document.getElementById('appGrid');
+  grid.innerHTML = '';
+  appData.forEach(item=>{
+    const card = document.createElement('div');
+    card.className = 'app-card';
+    card.setAttribute('tabindex','0');
+    card.setAttribute('role','button');
+    card.setAttribute('aria-label', `การ์ด ${item.title} กดเพื่อดูรายละเอียดเพิ่มเติม`);
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-face front">
+          <svg viewBox="0 0 24 24">${item.icon}</svg>
+          <h3>${item.title}</h3>
+          <p>${item.front}</p>
+          <div class="flip-hint">พลิกดูเพิ่มเติม</div>
+        </div>
+        <div class="card-face back">
+          <div class="tag">${item.tag}</div>
+          <h3>${item.title}</h3>
+          <div class="formula">${item.formula}</div>
+          <p>${item.back}</p>
+        </div>
+      </div>`;
+    const flip = ()=> card.classList.toggle('flipped');
+    card.addEventListener('click', flip);
+    card.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); flip(); }
+    });
+    grid.appendChild(card);
+  });
+}
+renderAppCards();
+
 /* ============ QUIZ ============ */
-const quizData = [
+const quizBank = [
   {q:'sin(90°) มีค่าเท่ากับเท่าใด?', options:['0','0.5','1','ไม่นิยาม'], correct:2},
   {q:'ในสามเหลี่ยมมุมฉาก อัตราส่วน "ด้านตรงข้าม / ด้านตรงข้ามมุมฉาก" คือฟังก์ชันใด?', options:['sin','cos','tan','cot'], correct:0},
   {q:'มุม 45° เทียบเท่ากับกี่เรเดียน?', options:['π/6','π/4','π/3','π/2'], correct:1},
   {q:'ข้อใดคือเอกลักษณ์พีทาโกรัสที่ถูกต้อง?', options:['sinθ + cosθ = 1','sin²θ − cos²θ = 1','sin²θ + cos²θ = 1','tanθ = sinθ + cosθ'], correct:2},
   {q:'ในควอดรันต์ที่ 2 (90°–180°) ค่า cos θ มีเครื่องหมายใด?', options:['บวก','ลบ','เป็นศูนย์เสมอ','ไม่นิยาม'], correct:1},
+  {q:'cos(0°) มีค่าเท่ากับเท่าใด?', options:['0','1','−1','ไม่นิยาม'], correct:1},
+  {q:'tan(90°) เป็นอย่างไร?', options:['0','1','ไม่นิยาม','−1'], correct:2},
+  {q:'ข้อใดคือคำย่อช่วยจำอัตราส่วนตรีโกณมิติพื้นฐาน?', options:['PEMDAS','SOHCAHTOA','FOIL','SSS'], correct:1},
+  {q:'180° มีค่าเท่ากับกี่เรเดียน?', options:['π/2','π','2π','π/4'], correct:1},
+  {q:'sin(30°) มีค่าเท่าใด?', options:['1/2','√2/2','√3/2','1'], correct:0},
+  {q:'cos(60°) มีค่าเท่าใด?', options:['1/2','√3/2','1','0'], correct:0},
+  {q:'กฎโคไซน์ใช้หาสิ่งใดเมื่อรู้สองด้านและมุมประกอบ (SAS)?', options:['พื้นที่สามเหลี่ยม','ด้านที่สาม','เส้นรอบวง','จุดศูนย์กลาง'], correct:1},
+  {q:'ในวงกลมหนึ่งหน่วย จุดที่มุม θ อยู่มีพิกัดใด?', options:['(sinθ, cosθ)','(cosθ, sinθ)','(tanθ, cotθ)','(θ, 1)'], correct:1},
+  {q:'ฟังก์ชันใดเป็นส่วนกลับของ sin θ?', options:['cos θ','sec θ','csc θ','cot θ'], correct:2},
+  {q:'ในควอดรันต์ที่ 3 (180°–270°) ค่า tan θ มีเครื่องหมายใด?', options:['บวก','ลบ','เป็นศูนย์','ไม่นิยาม'], correct:0},
+  {q:'sin 2θ เท่ากับข้อใด?', options:['2 sinθ','sin²θ','2 sinθ cosθ','cos²θ − sin²θ'], correct:2},
+  {q:'กฎไซน์เขียนแทนด้วยความสัมพันธ์ใด?', options:['a² = b² + c² − 2bc·cosA','a/sinA = b/sinB = c/sinC','a + b = c','sinA = cosB'], correct:1},
+  {q:'มุม 360° เท่ากับกี่เรเดียน?', options:['π','2π','π/2','4π'], correct:1},
+  {q:'ข้อใดคือค่าของ tan(45°)?', options:['0','1','√3','ไม่นิยาม'], correct:1},
+  {q:'ในสามเหลี่ยมมุมฉาก ด้านที่ยาวที่สุดเรียกว่าอะไร?', options:['ด้านประชิด','ด้านตรงข้าม','ด้านตรงข้ามมุมฉาก','ด้านฐาน'], correct:2},
 ];
 
+const QUIZ_SIZE = 5;
+let currentQuizSet = [];
+let quizRound = 1;
 const quizForm = document.getElementById('quizForm');
-quizData.forEach((item, qi)=>{
-  const wrap = document.createElement('div');
-  wrap.className = 'quiz-q';
-  const qtext = document.createElement('div');
-  qtext.className='qtext'; qtext.textContent = `${qi+1}. ${item.q}`;
-  wrap.appendChild(qtext);
-  const optsWrap = document.createElement('div');
-  optsWrap.className='quiz-opts';
-  item.options.forEach((opt, oi)=>{
-    const label = document.createElement('label');
-    label.className='quiz-opt';
-    label.innerHTML = `<input type="radio" name="q${qi}" value="${oi}"> <span>${opt}</span>`;
-    optsWrap.appendChild(label);
-  });
-  wrap.appendChild(optsWrap);
-  quizForm.appendChild(wrap);
-});
+const submitBtn = document.getElementById('submitQuiz');
+const newQuizBtn = document.getElementById('newQuizBtn');
+const quizProgress = document.getElementById('quizProgress');
 
-document.getElementById('submitQuiz').addEventListener('click', ()=>{
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function buildQuiz(){
+  currentQuizSet = shuffleArray(quizBank).slice(0, QUIZ_SIZE);
+  quizForm.innerHTML = '';
+  quizProgress.textContent = `ชุดคำถามที่ ${quizRound} · ${QUIZ_SIZE} ข้อ (จากคลัง ${quizBank.length} ข้อ)`;
+
+  currentQuizSet.forEach((item, qi)=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'quiz-q';
+    const qtext = document.createElement('div');
+    qtext.className='qtext'; qtext.textContent = `${qi+1}. ${item.q}`;
+    wrap.appendChild(qtext);
+    const optsWrap = document.createElement('div');
+    optsWrap.className='quiz-opts';
+    item.options.forEach((opt, oi)=>{
+      const label = document.createElement('label');
+      label.className='quiz-opt';
+      label.innerHTML = `<input type="radio" name="q${qi}" value="${oi}"> <span>${opt}</span>`;
+      optsWrap.appendChild(label);
+    });
+    wrap.appendChild(optsWrap);
+    quizForm.appendChild(wrap);
+  });
+
+  submitBtn.style.display = 'inline-flex';
+  newQuizBtn.style.display = 'none';
+  const scoreBox = document.getElementById('quizScore');
+  scoreBox.style.display = 'none';
+}
+
+submitBtn.addEventListener('click', ()=>{
   let score = 0;
-  quizData.forEach((item, qi)=>{
+  currentQuizSet.forEach((item, qi)=>{
     const opts = quizForm.querySelectorAll(`input[name="q${qi}"]`);
     let chosen = null;
     opts.forEach(o=>{ if(o.checked) chosen = parseInt(o.value); });
@@ -982,8 +1135,18 @@ document.getElementById('submitQuiz').addEventListener('click', ()=>{
   });
   const scoreBox = document.getElementById('quizScore');
   scoreBox.style.display='block';
-  scoreBox.textContent = `คุณได้คะแนน ${score} / ${quizData.length} ข้อ`;
+  scoreBox.textContent = `คุณได้คะแนน ${score} / ${currentQuizSet.length} ข้อ`;
+  submitBtn.style.display = 'none';
+  newQuizBtn.style.display = 'inline-flex';
 });
+
+newQuizBtn.addEventListener('click', ()=>{
+  quizRound++;
+  buildQuiz();
+  document.getElementById('quiz').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+buildQuiz();
 </script>
 </body>
 </html>
